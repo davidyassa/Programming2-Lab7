@@ -4,9 +4,7 @@
  */
 package frontend;
 
-import backend.Course;
-import backend.Lesson;
-import backend.Student;
+import backend.*;
 import controller.CourseService;
 
 import javax.swing.*;
@@ -183,4 +181,5 @@ public class StudentDashboardFrame extends JFrame {
             JOptionPane.showMessageDialog(this, "Please select a course and a lesson.", "Warning", JOptionPane.WARNING_MESSAGE);
         }
     }
+
 }
