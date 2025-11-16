@@ -1,18 +1,11 @@
-
 package frontend;
 
-
-
-
-
-import backend.Course;
-import backend.Instructor;
-import backend.Lesson;
+import backend.*;
 import controller.CourseService;
 import java.util.List;
-import java.util.logging.Logger; 
+import java.util.logging.Logger;
 import javax.swing.*;
-                     
+
 
 public class InstructorDashboardFrame extends javax.swing.JFrame {
 
@@ -63,48 +56,48 @@ public class InstructorDashboardFrame extends javax.swing.JFrame {
 
 private void initComponents() {
 
-        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+    setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
-        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
-        getContentPane().setLayout(layout);
-        layout.setHorizontalGroup(
+    javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
+    getContentPane().setLayout(layout);
+    layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 400, Short.MAX_VALUE)
-        );
-        layout.setVerticalGroup(
+                    .addGap(0, 400, Short.MAX_VALUE)
+    );
+    layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 300, Short.MAX_VALUE)
-        );
+                    .addGap(0, 300, Short.MAX_VALUE)
+    );
 
-        pack();
-    }// </editor-fold>                        
+    pack();
+}// </editor-fold>                        
 
     private void customInit() {
-        
-        loadCoursesData();
-    }
+
+    loadCoursesData();
+}
 
     private void loadCoursesData() {
-        logger.info("Loading courses for instructor: " + currentInstructor.getUsername());
+    logger.info("Loading courses for instructor: " + currentInstructor.getUsername());
 
-    }
+}
 
     private void handleCreateCourse() {
 
-        String title = JOptionPane.showInputDialog(this, "Enter Course Title:");
-        String description = JOptionPane.showInputDialog(this, "Enter Course Description:");
+    String title = JOptionPane.showInputDialog(this, "Enter Course Title:");
+    String description = JOptionPane.showInputDialog(this, "Enter Course Description:");
 
-        if (title != null && description != null) {
-            try {
-                courseService.createCourse(currentInstructor, title, description);
-                JOptionPane.showMessageDialog(this, "Course created successfully!");
-                loadCoursesData(); // Refresh the display
-            } catch (Exception ex) {
-                logger.severe("Error creating course: " + ex.getMessage());
-                JOptionPane.showMessageDialog(this, "Error creating course.", "Error", JOptionPane.ERROR_MESSAGE);
-            }
+    if (title != null && description != null) {
+        try {
+            courseService.createCourse(currentInstructor, title, description);
+            JOptionPane.showMessageDialog(this, "Course created successfully!");
+            loadCoursesData(); // Refresh the display
+        } catch (Exception ex) {
+            logger.severe("Error creating course: " + ex.getMessage());
+            JOptionPane.showMessageDialog(this, "Error creating course.", "Error", JOptionPane.ERROR_MESSAGE);
         }
-    } 
+    }
+} 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     // End of variables declaration//GEN-END:variables
 }

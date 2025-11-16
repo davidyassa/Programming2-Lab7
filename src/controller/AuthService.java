@@ -5,7 +5,7 @@
  */
 package controller;
 
-import backend.Instructor;
+import backend.*;
 import backend.JsonDatabaseManager;
 import backend.Student;
 import backend.User;

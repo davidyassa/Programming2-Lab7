@@ -1,28 +1,14 @@
-
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+ */
 package backend;
 
 import java.util.ArrayList;
-<<<<<<< HEAD
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
-public class Instructor extends User {
-
-    private final List<String> createdCourses;
-
-    public Instructor(String userId, String username, String email, String passwordHash) {
-        super(userId, "INSTRUCTOR", username, email, passwordHash);
-        this.createdCourses = new ArrayList<>();
-    }
-
-    public Instructor(String userId, String username, String email, String passwordHash,
-            List<String> createdCourses) {
-        super(userId, "INSTRUCTOR", username, email, passwordHash);
-        this.createdCourses = new ArrayList<>(createdCourses);
-=======
 import java.util.List;
 import java.util.UUID;
+
 
 public class Instructor extends User {
 
@@ -37,14 +23,12 @@ public class Instructor extends User {
         if (createdCourses != null) {
             this.createdCourses = createdCourses;
         }
->>>>>>> origin/space-mariam
     }
 
     public List<String> getCreatedCourses() {
         return createdCourses;
     }
 
-<<<<<<< HEAD
     public void addCourse(String courseId) {
         if (!createdCourses.contains(courseId)) {
             createdCourses.add(courseId);
@@ -83,8 +67,7 @@ public class Instructor extends User {
         }
         return new Instructor(userId, username, email, passwordHash, created);
     }
-}
-=======
+
     public void addCreatedCourse(String courseId) {
         createdCourses.add(courseId);
     }
@@ -152,4 +135,3 @@ public class Instructor extends User {
         return course.getEnrolledStudents();
     }
 }
->>>>>>> origin/space-mariam
