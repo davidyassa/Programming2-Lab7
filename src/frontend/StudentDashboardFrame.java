@@ -1,48 +1,185 @@
 /*
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
 package frontend;
 
+import backend.*;
+import controller.CourseService;
+
 import javax.swing.*;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.List;
 
-public class StudentDashboardFrame extends JPanel {
+public class StudentDashboardFrame extends JFrame {
 
-    public StudentDashboardFrame(FrameManager frame) {
-        super();
-        setLayout(null);
+    private Student currentStudent;
+    private CourseService courseService;
 
-        JLabel welcomeLabel = new JLabel("Welcome to the Student Dashboard!");
-        welcomeLabel.setBounds(200, 100, 400, 50);
-        add(welcomeLabel);
+    private DefaultListModel<Course> availableCoursesModel;
+    private DefaultListModel<Course> enrolledCoursesModel;
+    private DefaultListModel<Lesson> lessonsModel;
 
-        JButton logoutButton = new JButton("Logout");
-        logoutButton.setBounds(300, 300, 150, 40);
-        add(logoutButton);
+    private JList<Course> availableCoursesList;
+    private JList<Course> enrolledCoursesList;
+    private JList<Lesson> lessonsList;
+    private JButton enrollButton;
+    private JButton completeLessonButton;
+    private JLabel studentNameLabel;
+    private JLabel progressLabel;
+    private JPanel topPanel;
+    private JSplitPane mainSplit;
+    private JSplitSpltPane rightSplit;
 
-         logoutButton.addActionListener(e -> frame.showMainMenu());
+    public StudentDashboardFrame(Student student, CourseService courseService) {
+        this.currentStudent = student;
+        this.courseService = courseService;
+
+        availableCoursesModel = new DefaultListModel<>();
+        enrolledCoursesModel = new DefaultListModel<>();
+        lessonsModel = new DefaultListModel<>();
+
+        buildUI();
+
+        loadAvailableCourses();
+        loadEnrolledCourses();
+
+        studentNameLabel.setText("Welcome, " + currentStudent.getUsername());
+        progressLabel.setText("Select an enrolled course to see progress");
+
+        setTitle("Student Dashboard: " + student.getUsername());
+        setSize(1000, 700);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setLocationRelativeTo(null);
     }
-    // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
-    private void initComponents() {
 
-        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+    private void buildUI() {
+        setLayout(new BorderLayout(10, 10));
 
-        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
-        getContentPane().setLayout(layout);
-        layout.setHorizontalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 400, Short.MAX_VALUE)
-        );
-        layout.setVerticalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 300, Short.MAX_VALUE)
-        );
+        topPanel = new JPanel(new BorderLayout());
+        topPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        studentNameLabel = new JLabel();
+        studentNameLabel.setFont(new Font("Arial", Font.BOLD, 16));
+        progressLabel = new JLabel();
+        progressLabel.setFont(new Font("Arial", Font.PLAIN, 14));
+        topPanel.add(studentNameLabel, BorderLayout.WEST);
+        topPanel.add(progressLabel, BorderLayout.EAST);
+        add(topPanel, BorderLayout.NORTH);
 
-        pack();
-    }// </editor-fold>//GEN-END:initComponents
+        availableCoursesList = new JList<>(availableCoursesModel);
+        enrolledCoursesList = new JList<>(enrolledCoursesModel);
+        lessonsList = new JList<>(lessonsModel);
 
-   
+        enrollButton = new JButton("Enroll in Selected Course");
+        completeLessonButton = new JButton("Mark Lesson as Completed");
 
-    // Variables declaration - do not modify//GEN-BEGIN:variables
-    // End of variables declaration//GEN-END:variables
+        JPanel availablePanel = createTitledPanel("Available Courses", availableCoursesList, enrollButton);
+        JPanel enrolledPanel = createTitledPanel("My Enrolled Courses", enrolledCoursesList, null);
+        JPanel lessonsPanel = createTitledPanel("Course Lessons", lessonsList, completeLessonButton);
+
+        mainSplit = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, availablePanel, enrolledPanel);
+        mainSplit.setResizeWeight(0.5);
+
+        rightSplit = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, mainSplit, lessonsPanel);
+        rightSplit.setResizeWeight(0.66);
+
+        add(rightSplit, BorderLayout.CENTER);
+
+        enrollButton.addActionListener(e -> enrollSelectedCourse());
+        completeLessonButton.addActionListener(e -> markSelectedLessonAsComplete());
+        enrolledCoursesList.addListSelectionListener(e -> {
+            if (!e.getValueIsAdjusting()) {
+                loadLessonsForSelectedCourse();
+            }
+        });
+    }
+
+    private JPanel createTitledPanel(String title, JComponent list, JButton button) {
+        JPanel panel = new JPanel(new BorderLayout(5, 5));
+        panel.setBorder(BorderFactory.createTitledBorder(title));
+        panel.add(new JScrollPane(list), BorderLayout.CENTER);
+        if (button != null) {
+            panel.add(button, BorderLayout.SOUTH);
+        }
+        return panel;
+    }
+
+    private void loadAvailableCourses() {
+        availableCoursesModel.clear();
+        List<Course> allCourses = courseService.getAllCourses();
+        List<String> enrolledIds = currentStudent.getEnrolledCourses();
+
+        for (Course course : allCourses) {
+            if (!enrolledIds.contains(course.getCourseId())) {
+                availableCoursesModel.addElement(course);
+            }
+        }
+    }
+
+    private void loadEnrolledCourses() {
+        enrolledCoursesModel.clear();
+        List<Course> enrolledCourses = courseService.getEnrolledCourses(currentStudent.getUserId());
+        for (Course course : enrolledCourses) {
+            enrolledCoursesModel.addElement(course);
+        }
+    }
+
+    private void enrollSelectedCourse() {
+        Course selectedCourse = availableCoursesList.getSelectedValue();
+        if (selectedCourse != null) {
+            boolean success = courseService.enrollStudent(currentStudent.getUserId(), selectedCourse.getCourseId());
+            if (success) {
+                loadAvailableCourses();
+                loadEnrolledCourses();
+                JOptionPane.showMessageDialog(this, "Enrollment successful!");
+            } else {
+                JOptionPane.showMessageDialog(this, "Enrollment failed.", "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        } else {
+            JOptionPane.showMessageDialog(this, "Please select a course to enroll.", "Warning", JOptionPane.WARNING_MESSAGE);
+        }
+    }
+
+    private void loadLessonsForSelectedCourse() {
+        Course selectedCourse = enrolledCoursesList.getSelectedValue();
+        if (selectedCourse != null) {
+            lessonsModel.clear();
+            List<Lesson> lessons = selectedCourse.getLessons();
+            if(lessons != null) {
+                for (Lesson lesson : lessons) {
+                    lessonsModel.addElement(lesson);
+                }
+            }
+            double progress = courseService.getCourseProgress(currentStudent.getUserId(), selectedCourse.getCourseId());
+            progressLabel.setText(String.format("Progress in [%s]: %.1f%%", selectedCourse.getTitle(), progress));
+        } else {
+            lessonsModel.clear();
+            progressLabel.setText("Select an enrolled course to see progress");
+        }
+    }
+
+    private void markSelectedLessonAsComplete() {
+        Course selectedCourse = enrolledCoursesList.getSelectedValue();
+        Lesson selectedLesson = lessonsList.getSelectedValue();
+        if (selectedCourse != null && selectedLesson != null) {
+            boolean success = courseService.completeLesson(
+                currentStudent.getUserId(),
+                selectedCourse.getCourseId(),
+                selectedLesson.getLessonId()
+            );
+            if (success) {
+                loadLessonsForSelectedCourse();
+                JOptionPane.showMessageDialog(this, "Lesson marked as complete!");
+            } else {
+                JOptionPane.showMessageDialog(this, "Action failed.", "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        } else {
+            JOptionPane.showMessageDialog(this, "Please select a course and a lesson.", "Warning", JOptionPane.WARNING_MESSAGE);
+        }
+    }
+
 }
