@@ -1,22 +1,22 @@
-package main;
 
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Main.java to edit this template
- */
+/* Alexandria University CC272
+   Faculty of Engineering Programming II
+   Instructors: Dr. Layla Abou-Hadeed, Eng. Ahmed ElSayed, Eng. Ahmed Ashraf,
+   Eng. Miar Mamdouh, Eng. AbdElaziz Mohamed, Eng. Mazen Sallam, Eng. Shams Zayan,
+   Eng. Abdelrahman Wael, Eng. Mohamed Zaytoon, Eng. Muhannad Bashar */
 
+import javax.swing.SwingUtilities;
+import backend.JsonDatabaseManager;
+import controller.AuthService;
+import frontend.LoginFrame;
 
-/**
- *
- * @author DELL 7550
- */
 public class Main {
-
-    /**
-     * @param args the command line arguments
-     */
     public static void main(String[] args) {
-        // TODO code application logic here
+        SwingUtilities.invokeLater(() -> {
+            JsonDatabaseManager databaseManager = new JsonDatabaseManager("users.json", "courses.json");
+            AuthService authService = new AuthService(databaseManager);
+            LoginFrame loginFrame = new LoginFrame(authService, databaseManager);
+            loginFrame.setVisible(true);
+        });
     }
-    
 }
